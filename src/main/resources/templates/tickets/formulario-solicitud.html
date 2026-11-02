@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nueva solicitud')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+
+<main class="contenedor">
+
+    <div class="encabezado-seccion">
+        <div>
+            <h1>Registrar solicitud</h1>
+            <p class="subtitulo">Solicita un servicio, configuración o requerimiento nuevo.</p>
+        </div>
+        <a class="boton boton-secundario" th:href="@{/helpdesk}">← Volver al listado</a>
+    </div>
+
+    <form class="tarjeta" method="post" th:action="@{/helpdesk/guardar/solicitud}" th:object="${ticketSolicitud}">
+
+        <div class="campo">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" th:field="*{titulo}" maxlength="150"
+                   placeholder="Ej. Configuración de correo institucional" required="required"/>
+        </div>
+
+        <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" th:field="*{descripcion}"
+                      placeholder="Detalla qué necesitas y para cuándo lo requieres."></textarea>
+        </div>
+
+        <div class="fila-campos">
+            <div class="campo">
+                <label for="prioridad">Prioridad</label>
+                <select id="prioridad" th:field="*{prioridad}">
+                    <option value="BAJA">BAJA</option>
+                    <option value="MEDIA" selected="selected">MEDIA</option>
+                    <option value="ALTA">ALTA</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="estado">Estado inicial</label>
+                <select id="estado" th:field="*{estado}">
+                    <option value="ABIERTO" selected="selected">ABIERTO</option>
+                    <option value="EN_PROCESO">EN PROCESO</option>
+                    <option value="CERRADO">CERRADO</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="idCliente">Cliente</label>
+                <select id="idCliente" th:field="*{idCliente}">
+                    <option th:each="u : ${usuarios}"
+                            th:value="${u.id}"
+                            th:text="${u.nombre + ' (' + u.email + ')'}">Cliente</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="fechaCreacion">Fecha de creación</label>
+                <input type="datetime-local" id="fechaCreacion" th:field="*{fechaCreacion}" required="required"/>
+                <span class="ayuda">Formato: año-mes-día y hora.</span>
+            </div>
+        </div>
+
+        <div class="aviso" th:if="${#lists.isEmpty(usuarios)}">
+            No hay usuarios con rol CLIENTE registrados. Crea primero un usuario cliente.
+        </div>
+
+        <div class="formulario-acciones">
+            <button class="boton" type="submit">Guardar solicitud</button>
+            <a class="boton boton-secundario" th:href="@{/helpdesk}">Cancelar</a>
+        </div>
+
+    </form>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: pie}"></footer>
+</body>
+</html>

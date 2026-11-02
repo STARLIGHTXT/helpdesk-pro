@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Editar ticket')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+
+<main class="contenedor">
+
+    <div class="encabezado-seccion">
+        <div>
+            <h1>Editar ticket</h1>
+            <p class="subtitulo">
+                Ticket <strong th:text="${'#' + ticket.id}">#1</strong> ·
+                <span th:text="${ticket.tipoTicket}">INCIDENTE</span>
+            </p>
+        </div>
+        <a class="boton boton-secundario" th:href="@{/helpdesk/ver/{id}(id=${ticket.id})}">← Volver al detalle</a>
+    </div>
+
+    <form class="tarjeta" method="post" th:action="@{/helpdesk/actualizar/{id}(id=${ticket.id})}">
+
+        <div class="campo">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" th:value="${ticket.titulo}" maxlength="150"
+                   required="required"/>
+        </div>
+
+        <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" th:text="${ticket.descripcion}"></textarea>
+        </div>
+
+        <div class="fila-campos">
+            <div class="campo">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option th:each="e : ${estados}"
+                            th:value="${e}"
+                            th:text="${e}"
+                            th:selected="${ticket.estado != null and e.name() == ticket.estado.name()}">ABIERTO</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="prioridad">Prioridad</label>
+                <select id="prioridad" name="prioridad">
+                    <option th:each="p : ${prioridades}"
+                            th:value="${p}"
+                            th:text="${p}"
+                            th:selected="${ticket.prioridad != null and p.name() == ticket.prioridad.name()}">ALTA</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="idCliente">Cliente</label>
+                <select id="idCliente" name="idCliente">
+                    <option th:each="c : ${clientes}"
+                            th:value="${c.id}"
+                            th:text="${c.nombre + ' (' + c.email + ')'}"
+                            th:selected="${c.id == ticket.idCliente}">Cliente</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="aviso" th:if="${clientes == null or #lists.isEmpty(clientes)}">
+            No hay usuarios con rol CLIENTE registrados. Crea primero un usuario cliente.
+        </div>
+
+        <div class="formulario-acciones">
+            <button class="boton" type="submit">Guardar cambios</button>
+            <a class="boton boton-secundario" th:href="@{/helpdesk/ver/{id}(id=${ticket.id})}">Cancelar</a>
+        </div>
+
+    </form>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: pie}"></footer>
+</body>
+</html>

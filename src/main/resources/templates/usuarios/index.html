@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuarios')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+
+<main class="contenedor">
+
+    <div class="aviso-exito" th:if="${mensaje}" th:text="${mensaje}">Operación realizada.</div>
+    <div class="aviso" th:if="${error}" th:text="${error}">No se pudo completar la operación.</div>
+
+    <div class="encabezado-seccion">
+        <div>
+            <h1>Usuarios</h1>
+            <p class="subtitulo">Clientes y técnicos registrados en el sistema.</p>
+        </div>
+        <a class="boton" th:href="@{/usuarios/nuevo}">+ Nuevo usuario</a>
+    </div>
+
+    <div class="tarjeta" th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
+        <div class="vacio">
+            <strong>No hay usuarios registrados</strong>
+            <span>Da de alta al primer usuario con el botón de arriba.</span>
+        </div>
+    </div>
+
+    <div class="tabla-envoltura" th:if="${usuarios != null and not #lists.isEmpty(usuarios)}">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo electrónico</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${usuarios}">
+                <td class="celda-id" th:text="${u.id}">1</td>
+                <td th:text="${u.nombre}">Nombre</td>
+                <td th:text="${u.email}">correo@ejemplo.com</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${u.rol == null ? '' : 'badge-' + #strings.toLowerCase(u.rol)}"
+                          th:text="${u.rol}">CLIENTE</span>
+                </td>
+                <td class="celda-derecha">
+                    <a class="boton boton-pequeno boton-secundario"
+                       th:href="@{/usuarios/editar/{id}(id=${u.id})}">Editar</a>
+                    <form class="form-en-linea" method="post"
+                          th:action="@{/usuarios/eliminar/{id}(id=${u.id})}"
+                          onsubmit="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.');">
+                        <button class="boton boton-pequeno boton-peligro" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: pie}"></footer>
+</body>
+</html>

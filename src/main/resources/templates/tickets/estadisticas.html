@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Estadísticas')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+
+<main class="contenedor"
+      th:with="total=${conteoPrioridades == null or #maps.isEmpty(conteoPrioridades) ? 0 : #aggregates.sum(conteoPrioridades.values())}">
+
+    <div class="encabezado-seccion">
+        <div>
+            <h1>Estadísticas del sistema</h1>
+            <p class="subtitulo">Resumen global de los tickets registrados en el help desk.</p>
+        </div>
+        <a class="boton boton-secundario" th:href="@{/helpdesk}">← Volver al listado</a>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="tarjetas-resumen">
+
+        <div class="resumen">
+            <div class="etiqueta">Tickets registrados</div>
+            <div class="cifra" th:text="${total}">0</div>
+        </div>
+
+        <div class="resumen">
+            <div class="etiqueta">Promedio estimado de resolución</div>
+            <div class="cifra"
+                 th:text="${promedioResolucion == null ? '—' : #numbers.formatDecimal(promedioResolucion, 1, 2) + ' h'}">0.00 h</div>
+        </div>
+
+        <div class="resumen">
+            <div class="etiqueta">Prioridades registradas</div>
+            <div class="cifra"
+                 th:text="${conteoPrioridades == null or #maps.isEmpty(conteoPrioridades) ? '0' : #maps.size(conteoPrioridades)}">3</div>
+        </div>
+
+    </div>
+
+    <!-- Conteo por prioridad -->
+    <div class="tarjeta">
+        <h2>Tickets por prioridad</h2>
+
+        <div class="vacio" th:if="${conteoPrioridades == null or #maps.isEmpty(conteoPrioridades)}">
+            <strong>Sin datos</strong>
+            <span>Aún no hay tickets registrados en el sistema.</span>
+        </div>
+
+        <div class="tabla-envoltura" th:if="${conteoPrioridades != null and not #maps.isEmpty(conteoPrioridades)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Prioridad</th>
+                    <th>Tickets</th>
+                    <th>Distribución</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="fila : ${conteoPrioridades}">
+                    <td>
+                        <span class="badge"
+                              th:classappend="|badge-${#strings.toLowerCase(fila.key)}|"
+                              th:text="${fila.key}">ALTA</span>
+                    </td>
+                    <td th:text="${fila.value}">3</td>
+                    <td>
+                        <div class="barra-progreso">
+                            <span th:style="|width: ${total > 0 ? (fila.value * 100.0 / total) : 0}%|"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Ticket más antiguo abierto -->
+    <div class="tarjeta">
+        <h2>Ticket abierto más antiguo</h2>
+
+        <div class="vacio" th:if="${ticketMasAntiguo == null}">
+            <strong>No hay tickets abiertos</strong>
+            <span>Todos los tickets han sido atendidos.</span>
+        </div>
+
+        <div th:if="${ticketMasAntiguo != null}">
+            <div class="detalle-grid">
+                <div class="dato">
+                    <span class="etiqueta">Ticket</span>
+                    <span class="valor">
+                        <a th:href="@{/helpdesk/ver/{id}(id=${ticketMasAntiguo.id})}"
+                           th:text="${'#' + ticketMasAntiguo.id + ' · ' + ticketMasAntiguo.titulo}">#1 · Título</a>
+                    </span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Estado</span>
+                    <span class="badge valor"
+                          th:classappend="${ticketMasAntiguo.estado == null ? '' : 'badge-' + #strings.toLowerCase(ticketMasAntiguo.estado)}"
+                          th:text="${ticketMasAntiguo.estado}">ABIERTO</span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Prioridad</span>
+                    <span class="badge valor"
+                          th:classappend="${ticketMasAntiguo.prioridad == null ? '' : 'badge-' + #strings.toLowerCase(ticketMasAntiguo.prioridad)}"
+                          th:text="${ticketMasAntiguo.prioridad}">ALTA</span>
+                </div>
+                <div class="dato">
+                    <span class="etiqueta">Fecha de creación</span>
+                    <span class="valor"
+                          th:text="${ticketMasAntiguo.fechaCreacion == null ? '—' : #strings.replace(ticketMasAntiguo.fechaCreacion, 'T', ' ')}">2026-10-19 00:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: pie}"></footer>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tickets')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: encabezado}"></header>
+
+<main class="contenedor">
+
+    <div class="aviso-exito" th:if="${mensaje}" th:text="${mensaje}">Operación realizada.</div>
+    <div class="aviso" th:if="${error}" th:text="${error}">No se pudo completar la operación.</div>
+
+    <div class="encabezado-seccion">
+        <div>
+            <h1>Tickets de soporte</h1>
+            <p class="subtitulo">Listado general de incidentes y solicitudes registradas en el sistema.</p>
+        </div>
+        <div class="acciones">
+            <a class="boton boton-secundario" th:href="@{/helpdesk/nuevo/solicitud}">+ Nueva solicitud</a>
+            <a class="boton" th:href="@{/helpdesk/nuevo/incidente}">+ Nuevo incidente</a>
+        </div>
+    </div>
+
+    <!-- Filtro por estado (coincide con el @RequestParam Estado estado) -->
+    <form class="filtro" method="get" th:action="@{/helpdesk}">
+        <div class="campo" style="margin-bottom:0;">
+            <label for="estado">Filtrar por estado</label>
+            <select id="estado" name="estado">
+                <option value="" th:selected="${estadoActual == null}">Todos los estados</option>
+                <option value="ABIERTO" th:selected="${estadoActual != null and estadoActual.name() == 'ABIERTO'}">ABIERTO</option>
+                <option value="EN_PROCESO" th:selected="${estadoActual != null and estadoActual.name() == 'EN_PROCESO'}">EN PROCESO</option>
+                <option value="CERRADO" th:selected="${estadoActual != null and estadoActual.name() == 'CERRADO'}">CERRADO</option>
+            </select>
+        </div>
+        <button class="boton" type="submit">Aplicar filtro</button>
+        <a class="boton boton-secundario" th:href="@{/helpdesk}">Limpiar</a>
+    </form>
+
+    <!-- Mensaje cuando no existen tickets o cuando la vista se usa sin el atributo "tickets" -->
+    <div class="tarjeta" th:if="${tickets == null or #lists.isEmpty(tickets)}">
+        <div class="vacio">
+            <strong>No hay tickets para mostrar</strong>
+            <span th:if="${estadoActual != null}">No se encontraron tickets con estado
+                <span th:text="${estadoActual}">ABIERTO</span>.</span>
+            <span th:if="${estadoActual == null}">Registra el primer ticket con los botones de arriba.</span>
+        </div>
+    </div>
+
+    <div class="tabla-envoltura" th:if="${tickets != null and not #lists.isEmpty(tickets)}">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Tipo</th>
+                <th>Cliente</th>
+                <th>Técnico</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Fecha de creación</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${tickets}">
+                <td class="celda-id" th:text="${t.id}">1</td>
+                <td>
+                    <a th:href="@{/helpdesk/ver/{id}(id=${t.id})}" th:text="${t.titulo}">Título del ticket</a>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${t.tipoTicket == null ? '' : 'badge-' + #strings.toLowerCase(t.tipoTicket)}"
+                          th:text="${t.tipoTicket}">INCIDENTE</span>
+                </td>
+                <td th:text="${nombresUsuarios != null and nombresUsuarios[t.idCliente] != null ? nombresUsuarios[t.idCliente] : '#' + t.idCliente}">#1</td>
+                <td th:text="${t.idTecnico == null or t.idTecnico == 0 ? 'Sin asignar' : (nombresUsuarios != null and nombresUsuarios[t.idTecnico] != null ? nombresUsuarios[t.idTecnico] : '#' + t.idTecnico)}">Sin asignar</td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${t.prioridad == null ? '' : 'badge-' + #strings.toLowerCase(t.prioridad)}"
+                          th:text="${t.prioridad}">ALTA</span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${t.estado == null ? '' : 'badge-' + #strings.toLowerCase(t.estado)}"
+                          th:text="${t.estado}">ABIERTO</span>
+                </td>
+                <td th:text="${t.fechaCreacion == null ? '' : #strings.replace(t.fechaCreacion, 'T', ' ')}">2026-10-19 00:00</td>
+                <td class="celda-derecha">
+                    <a class="boton boton-pequeno" th:href="@{/helpdesk/ver/{id}(id=${t.id})}">Ver</a>
+                    <a class="boton boton-pequeno boton-secundario"
+                       th:href="@{/helpdesk/editar/{id}(id=${t.id})}">Editar</a>
+                    <form class="form-en-linea" method="post"
+                          th:action="@{/helpdesk/eliminar/{id}(id=${t.id})}"
+                          onsubmit="return confirm('¿Eliminar este ticket? Esta acción no se puede deshacer.');">
+                        <button class="boton boton-pequeno boton-peligro" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: pie}"></footer>
+</body>
+</html>

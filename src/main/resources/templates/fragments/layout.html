@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${titulo} + ' · Help Desk Pro'">Help Desk Pro</title>
+    <link rel="stylesheet" th:href="@{/styles/main.css}"/>
+</head>
+<body>
+
+<header class="barra" th:fragment="encabezado">
+    <div class="barra-contenido">
+        <a class="marca" th:href="@{/helpdesk}">
+            <span class="marca-icono">HD</span>
+            <span>Help Desk Pro</span>
+        </a>
+        <nav class="menu">
+            <a th:href="@{/helpdesk}">Tickets</a>
+            <a th:href="@{/helpdesk/nuevo/incidente}">Nuevo incidente</a>
+            <a th:href="@{/helpdesk/nuevo/solicitud}">Nueva solicitud</a>
+            <a th:href="@{/helpdesk/estadisticas}">Estadísticas</a>
+            <a th:href="@{/usuarios}">Usuarios</a>
+            <a th:href="@{/usuarios/nuevo}">Nuevo usuario</a>
+        </nav>
+    </div>
+</header>
+
+<footer class="pie" th:fragment="pie">
+    <p>Sistema gestor de soporte técnico · Spring Boot + Thymeleaf + PostgreSQL</p>
+</footer>
+
+</body>
+</html>
